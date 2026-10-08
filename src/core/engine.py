@@ -12,7 +12,7 @@ class QICREngine:
 
     def _combine_sfcs(self, intents: List[Intent]) -> List[str]:
         # 1. Definir prioridades padrão
-        SFC_PRIORITIES = {"DDoS": 100, "FW": 90, "IDS": 80, "IPS": 80, "WAF": 70, "LB": 50}
+        SFC_PRIORITIES = {"VPN": 100, "FW": 90, "IDS": 80, "IPS": 80, "WAF": 70, "LB": 50}
         
         # Coletar todas as transições originais para calcular aderência
         original_transitions = set()

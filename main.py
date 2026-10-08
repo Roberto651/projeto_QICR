@@ -67,7 +67,7 @@ def main():
     define intent A1_B1:
       from endpoint('A1')
       to endpoint('B1')
-      add middlebox('FW'), middlebox('DDoS')
+      add middlebox('FW'), middlebox('VPN')
       allow traffic('22'), traffic('23'), traffic('53')
     """))
     calendar.declare_intent(NileParser.parse("""
@@ -138,7 +138,7 @@ def main():
     define intent ZoneA_Web_4:
       from group('ZoneA')
       to endpoint('Web')
-      add middlebox('DDoS'), middlebox('FW'), middlebox('IDS')
+      add middlebox('VPN'), middlebox('FW'), middlebox('IDS')
       allow traffic('80')
     """))
     calendar.declare_intent(NileParser.parse("""

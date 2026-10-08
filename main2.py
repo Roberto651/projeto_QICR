@@ -142,7 +142,7 @@ if __name__ == "__main__":
             define intent Regra_Sec:
               from endpoint('Eng_PC1')
               to endpoint('App_Server')
-              add middlebox('DDoS'), middlebox('IDS')
+              add middlebox('VPN'), middlebox('IDS')
               allow traffic('22')
               block traffic('8080')
             """
@@ -217,7 +217,7 @@ if __name__ == "__main__":
             define intent Seguranca_Financeiro:
               from group('Financeiro')
               to group('Cloud')
-              add middlebox('DDoS'), middlebox('IDS')
+              add middlebox('VPN'), middlebox('IDS')
               block traffic('8080')
             """,
             """

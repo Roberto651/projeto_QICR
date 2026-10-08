@@ -52,7 +52,7 @@ def run_conflict_complexity_test():
     for num_conflicts in [2, 5, 10, 15, 20]:
         engine = QICREngine(kg)
         intents = []
-        middleboxes = ["FW", "IDS", "DDoS", "LB", "WAF"]
+        middleboxes = ["FW", "IDS", "VPN", "LB", "WAF"]
         
         for _ in range(num_conflicts):
             # Cria cadeias caóticas para o algoritmo resolver
@@ -136,7 +136,7 @@ def run_scalability_with_conflicts_flat_graph():
     kg = KnowledgeGraph()
     # Poucos endpoints para forçar cruzamento contínuo e muitos conflitos
     endpoints = ["A1", "A2", "B1", "B2"] 
-    middleboxes = ["FW", "IDS", "DDoS", "WAF", "LB"]
+    middleboxes = ["FW", "IDS", "VPN", "WAF", "LB"]
     
     for num_intents in [10, 50, 100, 200, 500]:
         engine = QICREngine(kg)
@@ -186,7 +186,7 @@ def run_scalability_with_conflicts_populated_graph():
     
     # Pegar os dois grupos principais (nível 1) para gerar conflito em massa (cada um afeta 64 IPs)
     grupos_alvo = ["Matriz_0", "Matriz_1", "Matriz_2", "Matriz_3"]
-    middleboxes = ["FW", "IDS", "DDoS"]
+    middleboxes = ["FW", "IDS", "VPN"]
     
     # Menos intents pois a explosão combinatória é gigante (10 intents = 40.960 combinações avaliadas)
     for num_intents in [5, 10, 25, 50]: 
