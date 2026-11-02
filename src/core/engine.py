@@ -2,6 +2,7 @@ import logging
 import networkx as nx
 from typing import List, Dict, Tuple
 from src.domain.models import Intent
+from src.domain.exceptions import KnowledgeGraphNodeError
 from src.core.kg import KnowledgeGraph
 
 logger = logging.getLogger(__name__)
@@ -102,9 +103,29 @@ class QICREngine:
         
         return same_src and same_dst
 
+    def _validate_intents_in_kg(self, intents: List[Intent]) -> None:
+        """
+        Valida rigorosamente que todas as origens e destinos declarados em cada intenção
+        existam previamente cadastrados no Grafo de Conhecimento.
+        Lança KnowledgeGraphNodeError caso algum nó não pertença ao grafo.
+        """
+        for intent in intents:
+            name_info = f" na intenção '{intent.name}'" if intent.name else ""
+            if not self.kg.contains_node(intent.src):
+                raise KnowledgeGraphNodeError(
+                    f"Origem não encontrada no Grafo de Conhecimento{name_info}: '{intent.src}'."
+                )
+            if not self.kg.contains_node(intent.dst):
+                raise KnowledgeGraphNodeError(
+                    f"Destino não encontrado no Grafo de Conhecimento{name_info}: '{intent.dst}'."
+                )
+
     def resolve_conflicts(self, intents: List[Intent]) -> List[Intent]:
         logger.info("=== Iniciando Resolução de Conflitos ===")
         
+        # 0. Validação Prévia: Garante que todas as origens e destinos estão no Grafo de Conhecimento
+        self._validate_intents_in_kg(intents)
+
         # 1. Identificação Inicial de Conflitos
         conflicting_indices = set()
         for i in range(len(intents)):
