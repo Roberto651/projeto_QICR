@@ -152,7 +152,7 @@ NILE_DATASET_500: List[str] = [
     for group('Cluster_Seguranca')
     add middlebox('IPS')
     set bandwidth('min', '1000', 'mbps')
-    allow traffic('5900')
+    allow traffic('5900')  
     """,
     """
     define intent Intent_RND_006:
@@ -3794,6 +3794,7 @@ def execute_random_time_windows(scripts: List[str], kg: KnowledgeGraph) -> List[
     cumulative_rejected = 0
 
     for name, w_scripts, expected_cumulative in windows_config:
+        t0_window = time.perf_counter()
         sent_in_w = len(w_scripts)
         active_before = repo.get_all()
         pre_existing_count = len(active_before)
@@ -3865,6 +3866,9 @@ def execute_random_time_windows(scripts: List[str], kg: KnowledgeGraph) -> List[
         resolved_conflicts = conflicting_pairs if remaining_conflicts == 0 else max(0, conflicting_pairs - remaining_conflicts)
         resolution_rate = 100.0 if remaining_conflicts == 0 else (resolved_conflicts / conflicting_pairs * 100.0 if conflicting_pairs > 0 else 100.0)
 
+        t1_window = time.perf_counter()
+        total_window_time = t1_window - t0_window
+
         print(f"  [RESULTADO DO FECHAMENTO {name}]")
         print(f"    - Regras Ativas Pré-Existentes no Repo: {pre_existing_count}")
         print(f"    - Pares Conflitantes Encontrados:       {conflicting_pairs}")
@@ -3872,6 +3876,7 @@ def execute_random_time_windows(scripts: List[str], kg: KnowledgeGraph) -> List[
         print(f"    - Conflitos Remanescentes na Rede:      {remaining_conflicts} (Zero conflitos)")
         print(f"    - Regras Ativas Finais na Rede:         {final_rules_count} regras consolidadas instaladas")
         print(f"    - Tempo de Fechamento da Janela:        {engine_time:.6f} s")
+        print(f"    - Tempo Total do Janelamento:           {total_window_time:.6f} s")
         print(f"    - Memória Pico no Motor:                {engine_mem_kb:.2f} KB")
         print(f"    - Amostra de Regras Ativas no Repositório:")
         for r in active_after[:2]:
@@ -3894,6 +3899,7 @@ def execute_random_time_windows(scripts: List[str], kg: KnowledgeGraph) -> List[
             "final_rules_count": final_rules_count,
             "parse_time": parse_time,
             "engine_time": engine_time,
+            "total_window_time": total_window_time,
             "engine_latency_ms": engine_latency_ms,
             "engine_mem_kb": engine_mem_kb
         })
@@ -3935,10 +3941,11 @@ def print_multitemporal_summary_table_11(results: List[Dict[str, Any]]):
         ("12. Regras Ativas Finais Instaladas na Rede", f"{w1['final_rules_count']} regras", f"{w2['final_rules_count']} regras", f"{w3['final_rules_count']} regras", f"{w4['final_rules_count']} regras", f"{w5['final_rules_count']} regras"),
         ("13. Tempo de Parsing na Janela", f"{w1['parse_time']:.6f} s", f"{w2['parse_time']:.6f} s", f"{w3['parse_time']:.6f} s", f"{w4['parse_time']:.6f} s", f"{w5['parse_time']:.6f} s"),
         ("14. Tempo do Motor no Fechamento", f"{w1['engine_time']:.6f} s", f"{w2['engine_time']:.6f} s", f"{w3['engine_time']:.6f} s", f"{w4['engine_time']:.6f} s", f"{w5['engine_time']:.6f} s"),
-        ("15. Latência Média por Intenção (ms)", f"{w1['engine_latency_ms']:.4f} ms", f"{w2['engine_latency_ms']:.4f} ms", f"{w3['engine_latency_ms']:.4f} ms", f"{w4['engine_latency_ms']:.4f} ms", f"{w5['engine_latency_ms']:.4f} ms"),
-        ("16. Memória Pico Alocada no Motor (KB)", f"{w1['engine_mem_kb']:.2f} KB", f"{w2['engine_mem_kb']:.2f} KB", f"{w3['engine_mem_kb']:.2f} KB", f"{w4['engine_mem_kb']:.2f} KB", f"{w5['engine_mem_kb']:.2f} KB"),
-        ("17. Reconciliação Topológica e Anti-Ciclo SFC", "Confirmado", "Confirmado", "Confirmado", "Confirmado", "Confirmado"),
-        ("18. Preservação de Políticas Deny-Overrides", "Confirmado", "Confirmado", "Confirmado", "Confirmado", "Confirmado")
+        ("15. Tempo Total do Janelamento", f"{w1['total_window_time']:.6f} s", f"{w2['total_window_time']:.6f} s", f"{w3['total_window_time']:.6f} s", f"{w4['total_window_time']:.6f} s", f"{w5['total_window_time']:.6f} s"),
+        ("16. Latência Média por Intenção (ms)", f"{w1['engine_latency_ms']:.4f} ms", f"{w2['engine_latency_ms']:.4f} ms", f"{w3['engine_latency_ms']:.4f} ms", f"{w4['engine_latency_ms']:.4f} ms", f"{w5['engine_latency_ms']:.4f} ms"),
+        ("17. Memória Pico Alocada no Motor (KB)", f"{w1['engine_mem_kb']:.2f} KB", f"{w2['engine_mem_kb']:.2f} KB", f"{w3['engine_mem_kb']:.2f} KB", f"{w4['engine_mem_kb']:.2f} KB", f"{w5['engine_mem_kb']:.2f} KB"),
+        ("18. Reconciliação Topológica e Anti-Ciclo SFC", "Confirmado", "Confirmado", "Confirmado", "Confirmado", "Confirmado"),
+        ("19. Preservação de Políticas Deny-Overrides", "Confirmado", "Confirmado", "Confirmado", "Confirmado", "Confirmado")
     ]
 
     for label, v1, v2, v3, v4, v5 in rows:
@@ -3978,6 +3985,7 @@ def main():
     final_rules = window_results[-1]["final_rules_count"]
     total_conflicts_found = sum(w["conflicting_pairs"] for w in window_results)
     total_conflicts_resolved = sum(w["resolved_conflicts"] for w in window_results)
+    total_windows_time = sum(w["total_window_time"] for w in window_results)
 
     print("=" * 90)
     print("                          SÍNTESE DOS RESULTADOS DO EXPERIMENTO")
@@ -3988,6 +3996,7 @@ def main():
     print(f"  4. Conflitos Concorrentes Encontrados nas Janelas:{total_conflicts_found} colisões")
     print(f"  5. Conflitos Resolvidos pelo Algoritmo QICR:      {total_conflicts_resolved}/{total_conflicts_found} (100.0% resolvidos)")
     print(f"  6. Regras Ativas Consolidadas Finais na Rede:     {final_rules} regras atômicas instaladas")
+    print(f"  7. Tempo Total Acumulado dos Janelamentos:      {total_windows_time:.6f} s")
     print("=" * 90 + "\n")
 
 
