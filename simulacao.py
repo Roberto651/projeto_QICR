@@ -1,7 +1,7 @@
 """
 ====================================================================================================
-                        QICR - QUANTUM INTENT CONFLICT RESOLUTION
-         AVALIAÇÃO DE ESCALABILIDADE COM 500 INTENÇÕES ALEATÓRIAS (main11.py)
+                        QICR - QUADRUPLE-BASED INTENT CONFLICT RESOLUTION
+         AVALIAÇÃO DE ESCALABILIDADE COM 500 INTENÇÕES ALEATÓRIAS (simulacao.py)
    BASEADO NO ARTIGO USENIX ATC '21 (LUMI) E NA GRAMÁTICA COMPLETA DA LINGUAGEM NILE
 ====================================================================================================
 Referência Teórica:
